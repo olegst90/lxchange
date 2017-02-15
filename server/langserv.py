@@ -16,17 +16,21 @@ except IOError:
 
 from eventlet import wsgi, websocket, listen, patcher
 from webapp import WebApp
+#import MySQLdb
+#from eventlet.db_pool import ConnectionPool
+#from langapi import LangAPI
 
-"""
-import MySQLdb
-from eventlet.db_pool import ConnectionPool
+#dbpool = ConnectionPool(MySQLdb, host='localhost', user='pythontest', passwd='1111',db='pythontest')
+#dbconnection = dbpool.get()
 
-dbpool = ConnectionPool(MySQLdb, host='localhost', user='pythontest', passwd='1111',db='pythontest')
-"""
+#api = LangAPI()
+#api.init(dbconnection)
+#api.dbcreate()
 
-app = WebApp()        
+app = WebApp() 
+
 @app.route("/")
-def handler1():
+def handler1(ctx):
     res =  '<head><script>\n'
     res += "console.log('starting');\n"
     res += 'var socket1 = new WebSocket("ws://{}:{}/sock1");\n'.format(server_host, server_port)
@@ -34,9 +38,20 @@ def handler1():
     res += "</script></head>"
     return res
 
+#@app.route("/profile",methods=['POST'])
+#def add_profile(ctx):
+#    api.register(ctx.req_post_params.)
+
+@app.route("/post",methods=['POST'])
+def add_profile(ctx):
+    for i,v in ctx.__dict__.items():
+        print "{} : {}".format(i,v)
+    return "OK"
+
+
 
 @app.route("/<uid>/<mode>",methods=['POST'])
-def handler2(uid,mode):
+def handler2(ctx,uid,mode):
     #print ("reg" + reg)
     return "{} and {} received".format(uid,mode)
 
@@ -48,24 +63,6 @@ def socket_handler1(ws):
         ws.send("re1:" + msg)
         msg = ws.wait()
 
-"""        
-@app.route("/as")
-def ashandler():
-    conn = dbpool.get()
-    try:
-        print("Blocking...");
-        print conn
-        print conn.cursor()
-        
-        
-        while True:
-            conn.cursor().execute("SELECT * FROM sessions;")
-        print("Done")
-    finally:
-        dbpool.put(conn)
-        
-    return "OK"
-"""        
-wsgi.server(listen((server_host, server_port)), app)
 
+wsgi.server(listen((server_host, server_port)), app)
 
